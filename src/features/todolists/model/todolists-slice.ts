@@ -17,12 +17,12 @@ export const todolistsSlece = createSlice({
         state.splice(index, 1)
       }
     }),
-    changeTodolistTitleAC: create.reducer<{ id: string; title: string }>((state, action) => {
-      const index = state.findIndex((todolist) => todolist.id === action.payload.id)
-      if (index !== -1) {
-        state[index].title = action.payload.title
-      }
-    }),
+    // changeTodolistTitleAC: create.reducer<{ id: string; title: string }>((state, action) => {
+    //   const index = state.findIndex((todolist) => todolist.id === action.payload.id)
+    //   if (index !== -1) {
+    //     state[index].title = action.payload.title
+    //   }
+    // }),
     changeTodolistFilterAC: create.reducer<{ id: string; filter: FilterValues }>((state, action) => {
       const todolist = state.find((todolist) => todolist.id === action.payload.id)
       if (todolist) {
@@ -44,11 +44,18 @@ export const todolistsSlece = createSlice({
     ),
   }),
   extraReducers: (builder) => {
-    builder.addCase(setTodolists.fulfilled, (state, action) => {
-      action.payload?.todolists.forEach((todolist) => {
-        state.push({ ...todolist, filter: "all" })
+    builder
+      .addCase(setTodolists.fulfilled, (state, action) => {
+        action.payload?.todolists.forEach((todolist) => {
+          state.push({ ...todolist, filter: "all" })
+        })
       })
-    })
+      .addCase(changeTodolistTitle.fulfilled, (state, action) => {
+        const index = state.findIndex((todolist) => todolist.id === action.payload.id)
+        if (index !== -1) {
+          state[index].title = action.payload.title
+        }
+      })
   },
 })
 
@@ -73,18 +80,32 @@ export const todolistsSlece = createSlice({
 // })
 
 // 2 вариант более популярный без экшн креэйтора но с экстраредьюсером
-export const setTodolists = createAsyncThunk(`${todolistsSlece.name}/setTodolistsTC`, async () => {
-  try {
-    const res = await todolistsApi.getTodolists()
-    return { todolists: res.data }
-  } catch (error) {
-    console.log(error)
-  }
-})
+export const setTodolists = createAsyncThunk(
+  `${todolistsSlece.name}/setTodolists`,
+  async (_arg, { rejectWithValue }) => {
+    try {
+      const res = await todolistsApi.getTodolists()
+      return { todolists: res.data }
+    } catch (error) {
+      return rejectWithValue(error)
+    }
+  },
+)
+
+export const changeTodolistTitle = createAsyncThunk(
+  `${todolistsSlece.name}/changeTodolistTitle`,
+  async (args: { id: string; title: string }, { rejectWithValue }) => {
+    try {
+      await todolistsApi.changeTodolistTitle(args)
+      return args
+    } catch (error) {
+      return rejectWithValue(null)
+    }
+  },
+)
 
 export const todolistsReducer = todolistsSlece.reducer
-export const { deleteTodolistAC, changeTodolistTitleAC, changeTodolistFilterAC, createTodolistAC } =
-  todolistsSlece.actions
+export const { deleteTodolistAC, changeTodolistFilterAC, createTodolistAC } = todolistsSlece.actions
 
 // export const deleteTodolistAC = createAction<{ id: string }>("todolists/deleteTodolist")
 // export const createTodolistAC = createAction("todolists/createTodolist", (title: string) => {
