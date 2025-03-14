@@ -1,15 +1,16 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit"
+import { createAsyncThunk, createSlice, nanoid } from "@reduxjs/toolkit"
 import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
+import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 
 export const todolistsSlece = createSlice({
   name: "todolists",
   initialState: [] as DomainTodolist[],
   reducers: (create) => ({
-    setTodolistsAC: create.reducer<{ todolists: Todolist[] }>((state, action) => {
-      action.payload.todolists.forEach((todolist) => {
-        state.push({ ...todolist, filter: "all" })
-      })
-    }),
+    // setTodolistsAC: create.reducer<{ todolists: Todolist[] }>((state, action) => {
+    //   action.payload.todolists.forEach((todolist) => {
+    //     state.push({ ...todolist, filter: "all" })
+    //   })
+    // }),
     deleteTodolistAC: create.reducer<{ id: string }>((state, action) => {
       const index = state.findIndex((todolist) => todolist.id === action.payload.id)
       if (index !== -1) {
@@ -42,10 +43,47 @@ export const todolistsSlece = createSlice({
       },
     ),
   }),
+  extraReducers: (builder) => {
+    builder.addCase(setTodolists.fulfilled, (state, action) => {
+      action.payload?.todolists.forEach((todolist) => {
+        state.push({ ...todolist, filter: "all" })
+      })
+    })
+  },
+})
+
+// 1 вариант
+// export const setTodolistsTC = createAsyncThunk(`${todolistsSlece.name}/setTodolistsTC`, (_arg, thunkAPI) => {
+//   const { dispatch } = thunkAPI
+//   //1. side effect - обращаемся из BLL к DALL
+//   todolistsApi.getTodolists().then((res) => {
+//     //2. set data to state
+//     dispatch(setTodolistsAC({ todolists: res.data }))
+//   })
+// })
+
+// // 2 вариант более популярный
+// export const setTodolistsTC = createAsyncThunk(`${todolistsSlece.name}/setTodolistsTC`, async (_arg, { dispatch }) => {
+//   try {
+//     const res = await todolistsApi.getTodolists()
+//     dispatch(setTodolistsAC({ todolists: res.data }))
+//   } catch (error) {
+//     console.log(error)
+//   }
+// })
+
+// 2 вариант более популярный без экшн креэйтора но с экстраредьюсером
+export const setTodolists = createAsyncThunk(`${todolistsSlece.name}/setTodolistsTC`, async () => {
+  try {
+    const res = await todolistsApi.getTodolists()
+    return { todolists: res.data }
+  } catch (error) {
+    console.log(error)
+  }
 })
 
 export const todolistsReducer = todolistsSlece.reducer
-export const { setTodolistsAC, deleteTodolistAC, changeTodolistTitleAC, changeTodolistFilterAC, createTodolistAC } =
+export const { deleteTodolistAC, changeTodolistTitleAC, changeTodolistFilterAC, createTodolistAC } =
   todolistsSlece.actions
 
 // export const deleteTodolistAC = createAction<{ id: string }>("todolists/deleteTodolist")
