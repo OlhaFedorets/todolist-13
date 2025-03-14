@@ -1,7 +1,7 @@
 import { EditableSpan } from "@/common/components/EditableSpan/EditableSpan"
 import { useAppDispatch } from "@/common/hooks"
 import {
-  changeTodolistTitleAC,
+  changeTodolistTitle,
   deleteTodolistAC,
   type DomainTodolist,
 } from "@/features/todolists/model/todolists-slice.ts"
@@ -22,14 +22,14 @@ export const TodolistTitle = ({ todolist }: Props) => {
     dispatch(deleteTodolistAC({ id }))
   }
 
-  const changeTodolistTitle = (title: string) => {
-    dispatch(changeTodolistTitleAC({ id, title }))
+  const changeTodolistTitleHandler = (title: string) => {
+    dispatch(changeTodolistTitle({ id, title }))
   }
 
   return (
     <div className={styles.container}>
       <h3>
-        <EditableSpan value={title} onChange={changeTodolistTitle} />
+        <EditableSpan value={title} onChange={changeTodolistTitleHandler} />
       </h3>
       <IconButton onClick={deleteTodolist}>
         <DeleteIcon />
