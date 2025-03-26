@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, nanoid } from "@reduxjs/toolkit"
 import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 
-export const todolistsSlece = createSlice({
+export const todolistsSlice = createSlice({
   name: "todolists",
   initialState: [] as DomainTodolist[],
   reducers: (create) => ({
@@ -57,6 +57,9 @@ export const todolistsSlece = createSlice({
         }
       })
   },
+  selectors: {
+    selectTodolists: (state) => state,
+  },
 })
 
 // 1 вариант
@@ -81,7 +84,7 @@ export const todolistsSlece = createSlice({
 
 // 2 вариант более популярный без экшн креэйтора но с экстраредьюсером
 export const setTodolists = createAsyncThunk(
-  `${todolistsSlece.name}/setTodolists`,
+  `${todolistsSlice.name}/setTodolists`,
   async (_arg, { rejectWithValue }) => {
     try {
       const res = await todolistsApi.getTodolists()
@@ -93,7 +96,7 @@ export const setTodolists = createAsyncThunk(
 )
 
 export const changeTodolistTitle = createAsyncThunk(
-  `${todolistsSlece.name}/changeTodolistTitle`,
+  `${todolistsSlice.name}/changeTodolistTitle`,
   async (args: { id: string; title: string }, { rejectWithValue }) => {
     try {
       await todolistsApi.changeTodolistTitle(args)
@@ -104,8 +107,9 @@ export const changeTodolistTitle = createAsyncThunk(
   },
 )
 
-export const todolistsReducer = todolistsSlece.reducer
-export const { deleteTodolistAC, changeTodolistFilterAC, createTodolistAC } = todolistsSlece.actions
+export const todolistsReducer = todolistsSlice.reducer
+export const { deleteTodolistAC, changeTodolistFilterAC, createTodolistAC } = todolistsSlice.actions
+export const { selectTodolists } = todolistsSlice.selectors
 
 // export const deleteTodolistAC = createAction<{ id: string }>("todolists/deleteTodolist")
 // export const createTodolistAC = createAction("todolists/createTodolist", (title: string) => {
