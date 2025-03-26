@@ -1,10 +1,6 @@
 import { EditableSpan } from "@/common/components/EditableSpan/EditableSpan"
 import { useAppDispatch } from "@/common/hooks"
-import {
-  changeTodolistTitle,
-  deleteTodolistAC,
-  type DomainTodolist,
-} from "@/features/todolists/model/todolists-slice.ts"
+import { changeTodolistTitle, deleteTodolist, type DomainTodolist } from "@/features/todolists/model/todolists-slice.ts"
 import DeleteIcon from "@mui/icons-material/Delete"
 import IconButton from "@mui/material/IconButton"
 import styles from "./TodolistTitle.module.css"
@@ -18,8 +14,8 @@ export const TodolistTitle = ({ todolist }: Props) => {
 
   const dispatch = useAppDispatch()
 
-  const deleteTodolist = () => {
-    dispatch(deleteTodolistAC({ id }))
+  const deleteTodolistHandler = () => {
+    dispatch(deleteTodolist(id))
   }
 
   const changeTodolistTitleHandler = (title: string) => {
@@ -31,7 +27,7 @@ export const TodolistTitle = ({ todolist }: Props) => {
       <h3>
         <EditableSpan value={title} onChange={changeTodolistTitleHandler} />
       </h3>
-      <IconButton onClick={deleteTodolist}>
+      <IconButton onClick={deleteTodolistHandler}>
         <DeleteIcon />
       </IconButton>
     </div>
